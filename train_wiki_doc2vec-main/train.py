@@ -8,7 +8,7 @@ logging.basicConfig(
 
 def main(lang):
     if lang == 'en':
-        f = open("dataset/dataset_en_1_23.pkl", "rb")
+        f = open("/Users/shin/Dev/dataset/dataset_en_1_23.pkl", "rb")
         dataset = joblib.load(f)  # データセットの読み込み
         trainings = [TaggedDocument(doc, [i]) for i, doc in enumerate(dataset)]
         model = Doc2Vec(documents=trainings, vector_size=100,
@@ -16,7 +16,7 @@ def main(lang):
         model.build_vocab(trainings)
         model.save('models/en_wikiFA_dv.model')
     elif lang == 'ja':
-        f = open("dataset/dataset_ja_1_23.pkl", "rb")
+        f = open("/Users/shin/Dev/dataset/dataset_ja_1_23.pkl", "rb")
         dataset = joblib.load(f)  # データセットの読み込み
         trainings = [TaggedDocument(doc, [i]) for i, doc in enumerate(dataset)]
         model = Doc2Vec(documents=trainings, vector_size=100,
