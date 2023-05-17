@@ -17,7 +17,7 @@ url= "https://ja.wikipedia.org/wiki/Category:%E4%B8%BB%E9%A1%8C%E5%88%A5%E5%88%8
 first_soup = getHtmlElement(url)
 first_elms = first_soup.find_all('div', {'class': 'CategoryTreeItem'})
 first_categories = []
-for page_elms in first_elms:
+for page_elms in first_elms[1:]:
   href = page_elms.find('a').get('href')
   title_elms = page_elms.find('span', {'class': 'CategoryTreeBullet'})
   title = str(title_elms).split('data-ct-title="')[1].split('"></span>')[0]
@@ -27,7 +27,7 @@ for page_elms in first_elms:
   }
   first_categories.append(obj)
   
-  output.extend([x.title for x in first_categories])
+  output.extend([x['title'] for x in first_categories])
 
   for second in first_categories:
     second_url = f'https://ja.wikipedia.org/{second["href"]}'
@@ -66,46 +66,28 @@ for page_elms in first_elms:
         "href": x.get("href")
       } for x in second_pages]
     
-    output.extend([x.title for x in second_pages])
+    output.extend([x['title'] for x in second_pages])
     
     for third in second_categories:
       third_url = f'https://ja.wikipedia.org/{third["href"]}'
+      third_url = 'https://ja.wikipedia.org/wiki/Category:%E6%A8%99%E6%9C%AC'
       third_soup = getHtmlElement(third_url)
-      third_categories_div = third_soup.find('div', id = 'mw-subcategories')
       third_pages_div = third_soup.find('div', id = 'mw-pages')
-      third_categories_elms = third_categories_div.find_all('div', {'class': 'mw-category-group'})
       third_pages_elms = third_pages_div.find_all('div', {'class': 'mw-category-group'})
-      third_categories = []
       third_pages = []
 
-      for third_categories_elm, third_pages_elm in itertools.zip_longest(third_categories_elms, third_pages_elms, fillvalue = "<h3>*</h3>"):
-        if "<h3>*</h3>" in str(third_categories_elm):
-          third_pages_all_a = third_pages_elm.find_all('a')
-          third_pages.extend(third_pages_all_a)
-          continue
+      for third_pages_elm in  third_pages_elms:
         if "<h3>*</h3>" in str(third_pages_elm):
-          third_categories_all_a = third_categories_elm.find_all('a')
-          third_categories.extend(third_categories_all_a)
           continue
-
-        third_categories_all_a = third_categories_elm.find_all('a')
-        third_categories.extend(third_categories_all_a)
         third_pages_all_a = third_pages_elm.find_all('a')
         third_pages.extend(third_pages_all_a)
-
-      third_categories = [
-        {
-          "title": x.text,
-          "href": x.get("href")
-        } for x in third_categories]
 
       third_pages = [
         {
           "title": x.text,
           "href": x.get("href")
         } for x in third_pages]
-      
-      output.extend([x.title for x in third_pages])
+      output.extend([x['title'] for x in third_pages])
 
 
 f = open('output.csv', 'w')
